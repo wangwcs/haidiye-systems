@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海迪耶国际饭店 · 内部管理系统</title>
+<style>
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-50:#eff6ff;--blue-100:#dbeafe;--blue-200:#bfdbfe;--blue-400:#60a5fa;--blue-500:#3b82f6;--blue-600:#2563eb;--blue-700:#1d4ed8;--blue-800:#1e40af;
+  --purple-50:#faf5ff;--purple-100:#f3e8ff;--purple-400:#c084fc;--purple-500:#a855f7;--purple-600:#9333ea;
+  --green-50:#f0fdf4;--green-100:#dcfce7;--green-400:#4ade80;--green-500:#22c55e;--green-600:#16a34a;
+  --orange-50:#fff7ed;--orange-100:#ffedd5;--orange-400:#fb923c;--orange-500:#f97316;--orange-600:#ea580c;
+  --red-50:#fef2f2;--red-500:#ef4444;--red-600:#dc2626;
+  --slate-50:#f8fafc;--slate-100:#f1f5f9;--slate-200:#e2e8f0;--slate-300:#cbd5e1;--slate-400:#94a3b8;--slate-500:#64748b;--slate-600:#475569;--slate-700:#334155;--slate-800:#1e293b;--slate-900:#0f172a;
+  --gold:#d4a853;--gold-light:#f0d48a;
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  color:var(--slate-800);min-height:100vh;overflow-x:hidden;
+  background:#0c1220;
+}
+
+/* ===== Animated Background ===== */
+.bg-scene{position:fixed;inset:0;z-index:0;overflow:hidden}
+.bg-scene::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%,rgba(37,99,235,.12) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%,rgba(147,51,234,.1) 0%,transparent 60%),
+    radial-gradient(ellipse 70% 40% at 50% 50%,rgba(249,115,22,.06) 0%,transparent 60%);
+}
+.bg-orb{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:.35;
+  animation:orbFloat 20s ease-in-out infinite alternate;
+}
+.bg-orb:nth-child(1){width:400px;height:400px;background:var(--blue-600);top:-10%;left:-5%;animation-duration:22s}
+.bg-orb:nth-child(2){width:350px;height:350px;background:var(--purple-600);bottom:-10%;right:-5%;animation-duration:18s;animation-delay:3s}
+.bg-orb:nth-child(3){width:250px;height:250px;background:var(--orange-500);top:40%;left:60%;animation-duration:25s;animation-delay:6s;opacity:.2}
+@keyframes orbFloat{
+  0%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(30px,-40px) scale(1.05)}
+  66%{transform:translate(-20px,30px) scale(.95)}
+  100%{transform:translate(10px,-10px) scale(1.02)}
+}
+
+/* Grid pattern overlay */
+.bg-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+
+/* ===== Main Container ===== */
+.portal{
+  position:relative;z-index:1;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 20px;
+}
+
+/* ===== Header ===== */
+.header{text-align:center;margin-bottom:48px;animation:fadeInDown .8s ease-out}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+
+.logo-wrap{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:auto;min-width:200px;max-width:340px;height:80px;border-radius:20px;margin-bottom:20px;
+  padding:0 28px;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.03));
+  backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1);
+  position:relative;overflow:hidden;
+}
+.logo-wrap::before{
+  content:"";position:absolute;inset:-2px;border-radius:22px;
+  background:conic-gradient(from 180deg,var(--blue-500),var(--purple-500),var(--orange-500),var(--blue-500));
+  z-index:-1;opacity:.5;animation:logoSpin 6s linear infinite;
+}
+@keyframes logoSpin{to{transform:rotate(360deg)}}
+.logo-wrap img{height:52px;width:auto;max-width:280px;border-radius:12px;object-fit:contain}
+
+.hotel-name{
+  font-size:clamp(1.5rem,4vw,2rem);font-weight:800;
+  background:linear-gradient(135deg,#fff 0%,var(--blue-200) 50%,var(--gold-light) 100%);
+  background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;letter-spacing:.04em;
+  animation:shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+.hotel-sub{
+  font-size:.9rem;color:rgba(255,255,255,.4);margin-top:8px;letter-spacing:.15em;
+  font-weight:500;
+}
+
+/* ===== Cards Grid ===== */
+.cards{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:16px;
+  max-width:520px;width:100%;margin-bottom:36px;
+}
+@media(max-width:480px){.cards{grid-template-columns:1fr;max-width:340px}}
+
+/* ===== Card ===== */
+.card{
+  position:relative;display:block;border-radius:20px;padding:28px 24px;
+  background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);
+  text-decoration:none;color:#fff;overflow:hidden;
+  transition:all .4s cubic-bezier(.22,1,.36,1);
+  animation:cardIn .6s ease-out both;
+}
+.card:nth-child(1){animation-delay:.1s}
+.card:nth-child(2){animation-delay:.2s}
+.card:nth-child(3){animation-delay:.3s}
+.card:nth-child(4){animation-delay:.4s}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* Bottom accent bar */
+.card .card-accent-bar{
+  position:absolute;bottom:0;left:20%;right:20%;height:2px;border-radius:2px 2px 0 0;
+  opacity:.5;transition:all .4s;filter:blur(1px);
+}
+.card:hover .card-accent-bar{left:10%;right:10%;opacity:.8;filter:blur(0);height:3px}
+.card[data-theme="blue"] .card-accent-bar{background:linear-gradient(90deg,transparent,var(--blue-400),transparent)}
+.card[data-theme="purple"] .card-accent-bar{background:linear-gradient(90deg,transparent,var(--purple-400),transparent)}
+.card[data-theme="green"] .card-accent-bar{background:linear-gradient(90deg,transparent,var(--green-400),transparent)}
+.card[data-theme="orange"] .card-accent-bar{background:linear-gradient(90deg,transparent,var(--orange-400),transparent)}
+
+/* Glow border on hover */
+.card::before{
+  content:"";position:absolute;inset:0;border-radius:20px;padding:1px;
+  background:var(--card-accent);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;
+}
+.card:hover::before{opacity:1}
+
+/* Light sweep on hover */
+.card::after{
+  content:"";position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+  transition:left .6s ease;
+}
+.card:hover::after{left:120%}
+
+.card:hover{
+  transform:translateY(-6px) scale(1.02);
+  border-color:rgba(255,255,255,.15);
+  background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.04));
+}
+.card[data-theme="blue"]:hover{box-shadow:0 20px 40px rgba(0,0,0,.3),0 0 30px rgba(59,130,246,.12)}
+.card[data-theme="purple"]:hover{box-shadow:0 20px 40px rgba(0,0,0,.3),0 0 30px rgba(168,85,247,.12)}
+.card[data-theme="green"]:hover{box-shadow:0 20px 40px rgba(0,0,0,.3),0 0 30px rgba(34,197,94,.12)}
+.card[data-theme="orange"]:hover{box-shadow:0 20px 40px rgba(0,0,0,.3),0 0 30px rgba(249,115,22,.12)}
+.card:active{transform:translateY(-2px) scale(.99);transition-duration:.1s}
+
+/* Card accent colors */
+.card[data-theme="blue"]{--card-accent:linear-gradient(135deg,var(--blue-400),var(--blue-600))}
+.card[data-theme="purple"]{--card-accent:linear-gradient(135deg,var(--purple-400),var(--purple-600))}
+.card[data-theme="green"]{--card-accent:linear-gradient(135deg,var(--green-400),var(--green-600))}
+.card[data-theme="orange"]{--card-accent:linear-gradient(135deg,var(--orange-400),var(--orange-600))}
+
+.card-icon{
+  width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;margin-bottom:16px;position:relative;z-index:1;
+  transition:transform .3s ease,box-shadow .3s ease;
+}
+.card:hover .card-icon{transform:scale(1.1) rotate(-3deg);box-shadow:0 8px 20px rgba(0,0,0,.2)}
+.card[data-theme="blue"] .card-icon{background:rgba(59,130,246,.2);color:var(--blue-400)}
+.card[data-theme="purple"] .card-icon{background:rgba(168,85,247,.2);color:var(--purple-400)}
+.card[data-theme="green"] .card-icon{background:rgba(34,197,94,.2);color:var(--green-400)}
+.card[data-theme="orange"] .card-icon{background:rgba(249,115,22,.2);color:var(--orange-400)}
+
+/* Card number badge */
+.card-num{
+  position:absolute;top:16px;right:18px;font-size:.6rem;font-weight:800;
+  color:rgba(255,255,255,.1);letter-spacing:.05em;z-index:1;
+  font-variant-numeric:tabular-nums;
+}
+
+.card-title{
+  font-size:1rem;font-weight:700;margin-bottom:6px;position:relative;z-index:1;
+  line-height:1.4;
+}
+.card-desc{
+  font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.5;margin-bottom:14px;
+  position:relative;z-index:1;
+}
+.card-enter{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.72rem;font-weight:700;letter-spacing:.06em;
+  padding:6px 14px;border-radius:999px;position:relative;z-index:1;
+  transition:all .3s;
+}
+.card[data-theme="blue"] .card-enter{background:rgba(59,130,246,.15);color:var(--blue-400)}
+.card[data-theme="purple"] .card-enter{background:rgba(168,85,247,.15);color:var(--purple-400)}
+.card[data-theme="green"] .card-enter{background:rgba(34,197,94,.15);color:var(--green-400)}
+.card[data-theme="orange"] .card-enter{background:rgba(249,115,22,.15);color:var(--orange-400)}
+.card:hover .card-enter{padding-right:18px}
+.card-enter svg{width:14px;height:14px;transition:transform .3s}
+.card:hover .card-enter svg{transform:translateX(3px)}
+
+/* ===== Footer Area ===== */
+.footer-area{
+  text-align:center;animation:fadeInUp .8s ease-out .5s both;
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.admin-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 24px;border-radius:12px;border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);backdrop-filter:blur(12px);
+  color:rgba(255,255,255,.4);font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .3s;text-decoration:none;
+  position:relative;overflow:hidden;
+}
+.admin-btn::after{
+  content:"";position:absolute;inset:-1px;border-radius:12px;
+  background:conic-gradient(from 0deg,transparent 60%,rgba(212,168,83,.15) 80%,transparent 100%);
+  animation:adminSpin 4s linear infinite;opacity:0;transition:opacity .3s;
+}
+.admin-btn:hover::after{opacity:1}
+.admin-btn:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border-color:rgba(212,168,83,.2)}
+.admin-btn span,.admin-btn svg{position:relative;z-index:1}
+@keyframes adminSpin{to{transform:rotate(360deg)}}
+.admin-btn svg{width:16px;height:16px;opacity:.6}
+
+.copyright{
+  margin-top:20px;font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.05em;
+}
+
+/* ===== Decorative Elements ===== */
+.deco-line{
+  width:40px;height:2px;border-radius:2px;margin:0 auto 48px;
+  background:linear-gradient(90deg,var(--blue-500),var(--purple-500));
+  opacity:.4;animation:fadeInUp .8s ease-out .3s both;
+  position:relative;overflow:hidden;
+}
+.deco-line::after{
+  content:"";position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);
+  animation:decoFlow 3s ease-in-out infinite;
+}
+@keyframes decoFlow{0%{left:-60%}100%{left:160%}}
+
+/* ===== Floating Particles ===== */
+.particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.particle{
+  position:absolute;width:2px;height:2px;border-radius:50%;
+  background:rgba(255,255,255,.3);animation:particleRise linear infinite;
+}
+.particle:nth-child(1){left:10%;animation-duration:15s;animation-delay:0s}
+.particle:nth-child(2){left:25%;animation-duration:18s;animation-delay:2s;width:3px;height:3px}
+.particle:nth-child(3){left:40%;animation-duration:12s;animation-delay:4s}
+.particle:nth-child(4){left:55%;animation-duration:20s;animation-delay:1s;width:1px;height:1px}
+.particle:nth-child(5){left:70%;animation-duration:16s;animation-delay:3s}
+.particle:nth-child(6){left:85%;animation-duration:14s;animation-delay:5s;width:3px;height:3px}
+.particle:nth-child(7){left:15%;animation-duration:22s;animation-delay:7s;width:1px;height:1px}
+.particle:nth-child(8){left:60%;animation-duration:17s;animation-delay:6s}
+.particle:nth-child(9){left:90%;animation-duration:19s;animation-delay:2s}
+.particle:nth-child(10){left:35%;animation-duration:21s;animation-delay:8s;width:1px;height:1px}
+@keyframes particleRise{
+  0%{bottom:-5%;opacity:0;transform:translateX(0)}
+  10%{opacity:.6}
+  50%{transform:translateX(30px)}
+  90%{opacity:.2}
+  100%{bottom:105%;opacity:0;transform:translateX(-20px)}
+}
+
+/* ===== Badge ===== */
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 16px;border-radius:999px;font-size:.7rem;font-weight:600;
+  background:rgba(212,168,83,.1);color:var(--gold);
+  border:1px solid rgba(212,168,83,.2);margin-bottom:16px;
+  letter-spacing:.08em;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== Responsive ===== */
+@media(max-width:380px){
+  .portal{padding:24px 14px}
+  .card{padding:22px 18px}
+  .card-title{font-size:.92rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-scene">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- Floating Particles -->
+<div class="particles">
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div>
+</div>
+
+<!-- Main Portal -->
+<div class="portal">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-wrap">
+      <img src="https://hzf76fm42sag6.ok.kimi.link/logo.jpg" alt="海迪耶国际饭店" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\x27font-size:2rem;letter-spacing:.1em;color:rgba(255,255,255,.7)\x27>海迪耶国际饭店</span>'">
+    </div>
+    <div class="badge"><span class="badge-dot"></span> INTERNAL PORTAL</div>
+    <h1 class="hotel-name">海迪耶国际饭店</h1>
+    <p class="hotel-sub">内 部 管 理 系 统 导 航</p>
+  </div>
+
+  <div class="deco-line"></div>
+
+  <!-- System Cards -->
+  <div class="cards">
+
+    <a href="https://e573f3a658ae8738-39-107-124-221.serveousercontent.com/%E8%BD%A6%E8%BE%86%E4%BF%A1%E6%81%AF7.18.html" class="card" data-theme="blue">
+      <div class="card-num">01</div>
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+      </div>
+      <div class="card-title">车辆查询系统</div>
+      <div class="card-desc">查询酒店车辆及车主信息</div>
+      <span class="card-enter">
+        进入系统
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="card-accent-bar"></div>
+    </a>
+
+    <a href="https://e573f3a658ae8738-39-107-124-221.serveousercontent.com/%E5%91%98%E5%B7%A5%E9%80%9A%E8%AE%AF%E5%BD%957.18.html" class="card" data-theme="purple">
+      <div class="card-num">02</div>
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
+      </div>
+      <div class="card-title">员工通讯录</div>
+      <div class="card-desc">查询酒店各部门员工联系信息</div>
+      <span class="card-enter">
+        进入系统
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="card-accent-bar"></div>
+    </a>
+
+    <a href="https://e573f3a658ae8738-39-107-124-221.serveousercontent.com/%E6%9C%AB%E7%AB%AF%E8%AF%95%E6%B0%B45.04.html" class="card" data-theme="green">
+      <div class="card-num">03</div>
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+      </div>
+      <div class="card-title">末端试水压力表</div>
+      <div class="card-desc">记录各楼层消防水压数据</div>
+      <span class="card-enter">
+        进入系统
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="card-accent-bar"></div>
+    </a>
+
+    <a href="https://e573f3a658ae8738-39-107-124-221.serveousercontent.com/%E6%B6%88%E9%98%B2%E5%9F%B9%E8%AE%AD.html" class="card" data-theme="orange">
+      <div class="card-num">04</div>
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/></svg>
+      </div>
+      <div class="card-title">消防知识培训</div>
+      <div class="card-desc">员工消防安全知识学习</div>
+      <span class="card-enter">
+        进入系统
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="card-accent-bar"></div>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-area">
+    <a href="#" class="admin-btn" onclick="alert('请联系管理员获取后台权限');return false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>管理后台</span>
+    </a>
+    <p class="copyright">© 2026 海迪耶国际饭店 · 内部使用</p>
+  </div>
+
+</div>
+
+</body>
+</html>
